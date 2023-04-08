@@ -10,7 +10,7 @@ You have to make include path pointing correct dir to CMSIS includes and stm32f4
 And please modify stm32f4xx.h or add preprocessor (-Dxxx) for   
 make stm32f4xx.h know target device type.   
 If no modification on makefile or stm32f4xx.h,   
-This project file will target STM32F$Discovery (STM32F403) for default  
+This project file will target STM32F4Discovery (STM32F407) for default  
 And program in main.c and pls make. You will get   
 1. output.bin - final binary output
 2. report - Disassembly and section info
