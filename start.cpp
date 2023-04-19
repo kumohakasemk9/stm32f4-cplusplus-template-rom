@@ -7,139 +7,143 @@
 	Please consider support me on kofi.com https://ko-fi.com/kumohakase
 */
 
-#define HANDLER_ATTRS interrupt, weak //attribute for interrupt functions
-#include <stm32f4xx.h>
+#define ISR __attribute((interrupt, weak)) //Interrupt handler attributes
 
-typedef void (*inthwnd_t)(); //type of interrupt handler pointer
-extern uint32_t __stack; //stack top from flash.ld
+#include <stdint.h>
+
+//Interrupt handler prototypes
 void Reset_Handler();
 
-__attribute((HANDLER_ATTRS)) void HardFault_Handler();
 /******  Cortex-M4 Processor Exceptions Numbers ****************************************************************/
-__attribute((HANDLER_ATTRS)) void NonMaskableInt_Handler();    /*!< 2 Non Maskable Interrupt                                          */
-__attribute((HANDLER_ATTRS)) void MemoryManagement_Handler();    /*!< 4 Cortex-M4 Memory Management Interrupt                           */
-__attribute((HANDLER_ATTRS)) void BusFault_Handler();    /*!< 5 Cortex-M4 Bus Fault Interrupt                                   */
-__attribute((HANDLER_ATTRS)) void UsageFault_Handler();    /*!< 6 Cortex-M4 Usage Fault Interrupt                                 */
-__attribute((HANDLER_ATTRS)) void SVCall_Handler();     /*!< 11 Cortex-M4 SV Call Interrupt                                    */
-__attribute((HANDLER_ATTRS)) void DebugMonitor_Handler();     /*!< 12 Cortex-M4 Debug Monitor Interrupt                              */
-__attribute((HANDLER_ATTRS)) void PendSV_Handler();     /*!< 14 Cortex-M4 Pend SV Interrupt                                    */
-__attribute((HANDLER_ATTRS)) void SysTick_Handler();     /*!< 15 Cortex-M4 System Tick Interrupt                                */
+ISR void NonMaskableInt_Handler();    /*!< 2 Non Maskable Interrupt                                          */
+ISR void Hardfault_Handler();
+ISR void MemoryManagement_Handler();    /*!< 4 Cortex-M4 Memory Management Interrupt                           */
+ISR void BusFault_Handler();    /*!< 5 Cortex-M4 Bus Fault Interrupt                                   */
+ISR void UsageFault_Handler();    /*!< 6 Cortex-M4 Usage Fault Interrupt                                 */
+ISR void SVCall_Handler();     /*!< 11 Cortex-M4 SV Call Interrupt                                    */
+ISR void DebugMonitor_Handler();     /*!< 12 Cortex-M4 Debug Monitor Interrupt                              */
+ISR void PendSV_Handler();     /*!< 14 Cortex-M4 Pend SV Interrupt                                    */
+ISR void SysTick_Handler();     /*!< 15 Cortex-M4 System Tick Interrupt                                */
 /******  STM32 specific Interrupt Numbers **********************************************************************/
-__attribute((HANDLER_ATTRS)) void WWDG_Handler();      /*!< Window WatchDog Interrupt                                         */
-__attribute((HANDLER_ATTRS)) void PVD_Handler();      /*!< PVD through EXTI Line detection Interrupt                         */
-__attribute((HANDLER_ATTRS)) void TAMP_STAMP_Handler();      /*!< Tamper and TimeStamp interrupts through the EXTI line             */
-__attribute((HANDLER_ATTRS)) void RTC_WKUP_Handler();      /*!< RTC Wakeup interrupt through the EXTI line                        */
-__attribute((HANDLER_ATTRS)) void FLASH_Handler();      /*!< FLASH global Interrupt                                            */
-__attribute((HANDLER_ATTRS)) void RCC_Handler();      /*!< RCC global Interrupt                                              */
-__attribute((HANDLER_ATTRS)) void EXTI0_Handler();      /*!< EXTI Line0 Interrupt                                              */
-__attribute((HANDLER_ATTRS)) void EXTI1_Handler();      /*!< EXTI Line1 Interrupt                                              */
-__attribute((HANDLER_ATTRS)) void EXTI2_Handler();      /*!< EXTI Line2 Interrupt                                              */
-__attribute((HANDLER_ATTRS)) void EXTI3_Handler();      /*!< EXTI Line3 Interrupt                                              */
-__attribute((HANDLER_ATTRS)) void EXTI4_Handler();     /*!< EXTI Line4 Interrupt                                              */
-__attribute((HANDLER_ATTRS)) void DMA1_Stream0_Handler();     /*!< DMA1 Stream 0 global Interrupt                                    */
-__attribute((HANDLER_ATTRS)) void DMA1_Stream1_Handler();     /*!< DMA1 Stream 1 global Interrupt                                    */
-__attribute((HANDLER_ATTRS)) void DMA1_Stream2_Handler();     /*!< DMA1 Stream 2 global Interrupt                                    */
-__attribute((HANDLER_ATTRS)) void DMA1_Stream3_Handler();     /*!< DMA1 Stream 3 global Interrupt                                    */
-__attribute((HANDLER_ATTRS)) void DMA1_Stream4_Handler();     /*!< DMA1 Stream 4 global Interrupt                                    */
-__attribute((HANDLER_ATTRS)) void DMA1_Stream5_Handler();     /*!< DMA1 Stream 5 global Interrupt                                    */
-__attribute((HANDLER_ATTRS)) void DMA1_Stream6_Handler();     /*!< DMA1 Stream 6 global Interrupt                                    */
-__attribute((HANDLER_ATTRS)) void ADC_Handler();     /*!< ADC1, ADC2 and ADC3 global Interrupts                             */
-__attribute((HANDLER_ATTRS)) void CAN1_TX_Handler();     /*!< CAN1 TX Interrupt                                                 */
-__attribute((HANDLER_ATTRS)) void CAN1_RX0_Handler();     /*!< CAN1 RX0 Interrupt                                                */
-__attribute((HANDLER_ATTRS)) void CAN1_RX1_Handler();     /*!< CAN1 RX1 Interrupt                                                */
-__attribute((HANDLER_ATTRS)) void CAN1_SCE_Handler();     /*!< CAN1 SCE Interrupt                                                */
-__attribute((HANDLER_ATTRS)) void EXTI9_5_Handler();     /*!< External Line[9:5] Interrupts                                     */
-__attribute((HANDLER_ATTRS)) void TIM1_BRK_TIM9_Handler();     /*!< TIM1 Break interrupt and TIM9 global interrupt                    */
-__attribute((HANDLER_ATTRS)) void TIM1_UP_TIM10_Handler();     /*!< TIM1 Update Interrupt and TIM10 global interrupt                  */
-__attribute((HANDLER_ATTRS)) void TIM1_TRG_COM_TIM11_Handler();     /*!< TIM1 Trigger and Commutation Interrupt and TIM11 global interrupt */
-__attribute((HANDLER_ATTRS)) void TIM1_CC_Handler();     /*!< TIM1 Capture Compare Interrupt                                    */
-__attribute((HANDLER_ATTRS)) void TIM2_Handler();     /*!< TIM2 global Interrupt                                             */
-__attribute((HANDLER_ATTRS)) void TIM3_Handler();     /*!< TIM3 global Interrupt                                             */
-__attribute((HANDLER_ATTRS)) void TIM4_Handler();     /*!< TIM4 global Interrupt                                             */
-__attribute((HANDLER_ATTRS)) void I2C1_EV_Handler();     /*!< I2C1 Event Interrupt                                              */
-__attribute((HANDLER_ATTRS)) void I2C1_ER_Handler();     /*!< I2C1 Error Interrupt                                              */
-__attribute((HANDLER_ATTRS)) void I2C2_EV_Handler();     /*!< I2C2 Event Interrupt                                              */
-__attribute((HANDLER_ATTRS)) void I2C2_ER_Handler();     /*!< I2C2 Error Interrupt                                              */  
-__attribute((HANDLER_ATTRS)) void SPI1_Handler();     /*!< SPI1 global Interrupt                                             */
-__attribute((HANDLER_ATTRS)) void SPI2_Handler();     /*!< SPI2 global Interrupt                                             */
-__attribute((HANDLER_ATTRS)) void USART1_Handler();     /*!< USART1 global Interrupt                                           */
-__attribute((HANDLER_ATTRS)) void USART2_Handler();     /*!< USART2 global Interrupt                                           */
-__attribute((HANDLER_ATTRS)) void USART3_Handler();     /*!< USART3 global Interrupt                                           */
-__attribute((HANDLER_ATTRS)) void EXTI15_10_Handler();     /*!< External Line[15:10] Interrupts                                   */
-__attribute((HANDLER_ATTRS)) void RTC_Alarm_Handler();     /*!< RTC Alarm (A and B) through EXTI Line Interrupt                   */
-__attribute((HANDLER_ATTRS)) void OTG_FS_WKUP_Handler();     /*!< USB OTG FS Wakeup through EXTI line interrupt                     */    
-__attribute((HANDLER_ATTRS)) void TIM8_BRK_TIM12_Handler();     /*!< TIM8 Break Interrupt and TIM12 global interrupt                   */
-__attribute((HANDLER_ATTRS)) void TIM8_UP_TIM13_Handler();     /*!< TIM8 Update Interrupt and TIM13 global interrupt                  */
-__attribute((HANDLER_ATTRS)) void TIM8_TRG_COM_TIM14_Handler();     /*!< TIM8 Trigger and Commutation Interrupt and TIM14 global interrupt */
-__attribute((HANDLER_ATTRS)) void TIM8_CC_Handler();     /*!< TIM8 Capture Compare Interrupt                                    */
-__attribute((HANDLER_ATTRS)) void DMA1_Stream7_Handler();     /*!< DMA1 Stream7 Interrupt                                            */
+ISR void WWDG_Handler();      /*!< Window WatchDog Interrupt                                         */
+ISR void PVD_Handler();      /*!< PVD through EXTI Line detection Interrupt                         */
+ISR void TAMP_STAMP_Handler();      /*!< Tamper and TimeStamp interrupts through the EXTI line             */
+ISR void RTC_WKUP_Handler();      /*!< RTC Wakeup interrupt through the EXTI line                        */
+ISR void FLASH_Handler();      /*!< FLASH global Interrupt                                            */
+ISR void RCC_Handler();      /*!< RCC global Interrupt                                              */
+ISR void EXTI0_Handler();      /*!< EXTI Line0 Interrupt                                              */
+ISR void EXTI1_Handler();      /*!< EXTI Line1 Interrupt                                              */
+ISR void EXTI2_Handler();      /*!< EXTI Line2 Interrupt                                              */
+ISR void EXTI3_Handler();      /*!< EXTI Line3 Interrupt                                              */
+ISR void EXTI4_Handler();     /*!< EXTI Line4 Interrupt                                              */
+ISR void DMA1_Stream0_Handler();     /*!< DMA1 Stream 0 global Interrupt                                    */
+ISR void DMA1_Stream1_Handler();     /*!< DMA1 Stream 1 global Interrupt                                    */
+ISR void DMA1_Stream2_Handler();     /*!< DMA1 Stream 2 global Interrupt                                    */
+ISR void DMA1_Stream3_Handler();     /*!< DMA1 Stream 3 global Interrupt                                    */
+ISR void DMA1_Stream4_Handler();     /*!< DMA1 Stream 4 global Interrupt                                    */
+ISR void DMA1_Stream5_Handler();     /*!< DMA1 Stream 5 global Interrupt                                    */
+ISR void DMA1_Stream6_Handler();     /*!< DMA1 Stream 6 global Interrupt                                    */
+ISR void ADC_Handler();     /*!< ADC1, ADC2 and ADC3 global Interrupts                             */
+ISR void CAN1_TX_Handler();     /*!< CAN1 TX Interrupt                                                 */
+ISR void CAN1_RX0_Handler();     /*!< CAN1 RX0 Interrupt                                                */
+ISR void CAN1_RX1_Handler();     /*!< CAN1 RX1 Interrupt                                                */
+ISR void CAN1_SCE_Handler();     /*!< CAN1 SCE Interrupt                                                */
+ISR void EXTI9_5_Handler();     /*!< External Line[9:5] Interrupts                                     */
+ISR void TIM1_BRK_TIM9_Handler();     /*!< TIM1 Break interrupt and TIM9 global interrupt                    */
+ISR void TIM1_UP_TIM10_Handler();     /*!< TIM1 Update Interrupt and TIM10 global interrupt                  */
+ISR void TIM1_TRG_COM_TIM11_Handler();     /*!< TIM1 Trigger and Commutation Interrupt and TIM11 global interrupt */
+ISR void TIM1_CC_Handler();     /*!< TIM1 Capture Compare Interrupt                                    */
+ISR void TIM2_Handler();     /*!< TIM2 global Interrupt                                             */
+ISR void TIM3_Handler();     /*!< TIM3 global Interrupt                                             */
+ISR void TIM4_Handler();     /*!< TIM4 global Interrupt                                             */
+ISR void I2C1_EV_Handler();     /*!< I2C1 Event Interrupt                                              */
+ISR void I2C1_ER_Handler();     /*!< I2C1 Error Interrupt                                              */
+ISR void I2C2_EV_Handler();     /*!< I2C2 Event Interrupt                                              */
+ISR void I2C2_ER_Handler();     /*!< I2C2 Error Interrupt                                              */  
+ISR void SPI1_Handler();     /*!< SPI1 global Interrupt                                             */
+ISR void SPI2_Handler();     /*!< SPI2 global Interrupt                                             */
+ISR void USART1_Handler();     /*!< USART1 global Interrupt                                           */
+ISR void USART2_Handler();     /*!< USART2 global Interrupt                                           */
+ISR void USART3_Handler();     /*!< USART3 global Interrupt                                           */
+ISR void EXTI15_10_Handler();     /*!< External Line[15:10] Interrupts                                   */
+ISR void RTC_Alarm_Handler();     /*!< RTC Alarm (A and B) through EXTI Line Interrupt                   */
+ISR void OTG_FS_WKUP_Handler();     /*!< USB OTG FS Wakeup through EXTI line interrupt                     */    
+ISR void TIM8_BRK_TIM12_Handler();     /*!< TIM8 Break Interrupt and TIM12 global interrupt                   */
+ISR void TIM8_UP_TIM13_Handler();     /*!< TIM8 Update Interrupt and TIM13 global interrupt                  */
+ISR void TIM8_TRG_COM_TIM14_Handler();     /*!< TIM8 Trigger and Commutation Interrupt and TIM14 global interrupt */
+ISR void TIM8_CC_Handler();     /*!< TIM8 Capture Compare Interrupt                                    */
+ISR void DMA1_Stream7_Handler();     /*!< DMA1 Stream7 Interrupt                                            */
 
 #if defined (STM32F40XX) || defined (STM32F427X)
-__attribute((HANDLER_ATTRS)) void FSMC_Handler();     /*!< FSMC global Interrupt                                             */
+ISR void FSMC_Handler();     /*!< FSMC global Interrupt                                             */
 #endif /* STM32F40XX || STM32F427X */
 
 #if defined(STM32F429X)
-__attribute((HANDLER_ATTRS)) void FMC_Handler();     /*!< FMC global Interrupt                                              */
+ISR void FMC_Handler();     /*!< FMC global Interrupt                                              */
 #endif /* STM32F429X */ 
 
-__attribute((HANDLER_ATTRS)) void SDIO_Handler();     /*!< SDIO global Interrupt                                             */
-__attribute((HANDLER_ATTRS)) void TIM5_Handler();     /*!< TIM5 global Interrupt                                             */
-__attribute((HANDLER_ATTRS)) void SPI3_Handler();     /*!< SPI3 global Interrupt                                             */
-__attribute((HANDLER_ATTRS)) void UART4_Handler();     /*!< UART4 global Interrupt                                            */
-__attribute((HANDLER_ATTRS)) void UART5_Handler();     /*!< UART5 global Interrupt                                            */
-__attribute((HANDLER_ATTRS)) void TIM6_DAC_Handler();     /*!< TIM6 global and DAC1&2 underrun error  interrupts                 */
-__attribute((HANDLER_ATTRS)) void TIM7_Handler();     /*!< TIM7 global interrupt                                             */
-__attribute((HANDLER_ATTRS)) void DMA2_Stream0_Handler();     /*!< DMA2 Stream 0 global Interrupt                                    */
-__attribute((HANDLER_ATTRS)) void DMA2_Stream1_Handler();     /*!< DMA2 Stream 1 global Interrupt                                    */
-__attribute((HANDLER_ATTRS)) void DMA2_Stream2_Handler();     /*!< DMA2 Stream 2 global Interrupt                                    */
-__attribute((HANDLER_ATTRS)) void DMA2_Stream3_Handler();     /*!< DMA2 Stream 3 global Interrupt                                    */
-__attribute((HANDLER_ATTRS)) void DMA2_Stream4_Handler();     /*!< DMA2 Stream 4 global Interrupt                                    */
-__attribute((HANDLER_ATTRS)) void ETH_Handler();     /*!< Ethernet global Interrupt                                         */
-__attribute((HANDLER_ATTRS)) void ETH_WKUP_Handler();     /*!< Ethernet Wakeup through EXTI line Interrupt                       */
-__attribute((HANDLER_ATTRS)) void CAN2_TX_Handler();     /*!< CAN2 TX Interrupt                                                 */
-__attribute((HANDLER_ATTRS)) void CAN2_RX0_Handler();     /*!< CAN2 RX0 Interrupt                                                */
-__attribute((HANDLER_ATTRS)) void CAN2_RX1_Handler();     /*!< CAN2 RX1 Interrupt                                                */
-__attribute((HANDLER_ATTRS)) void CAN2_SCE_Handler();     /*!< CAN2 SCE Interrupt                                                */
-__attribute((HANDLER_ATTRS)) void OTG_FS_Handler();     /*!< USB OTG FS global Interrupt                                       */
-__attribute((HANDLER_ATTRS)) void DMA2_Stream5_Handler();     /*!< DMA2 Stream 5 global interrupt                                    */
-__attribute((HANDLER_ATTRS)) void DMA2_Stream6_Handler();     /*!< DMA2 Stream 6 global interrupt                                    */
-__attribute((HANDLER_ATTRS)) void DMA2_Stream7_Handler();     /*!< DMA2 Stream 7 global interrupt                                    */
-__attribute((HANDLER_ATTRS)) void USART6_Handler();     /*!< USART6 global interrupt                                           */
-__attribute((HANDLER_ATTRS)) void I2C3_EV_Handler();     /*!< I2C3 event interrupt                                              */
-__attribute((HANDLER_ATTRS)) void I2C3_ER_Handler();     /*!< I2C3 error interrupt                                              */
-__attribute((HANDLER_ATTRS)) void OTG_HS_EP1_OUT_Handler();     /*!< USB OTG HS End Point 1 Out global interrupt                       */
-__attribute((HANDLER_ATTRS)) void OTG_HS_EP1_IN_Handler();     /*!< USB OTG HS End Point 1 In global interrupt                        */
-__attribute((HANDLER_ATTRS)) void OTG_HS_WKUP_Handler();     /*!< USB OTG HS Wakeup through EXTI interrupt                          */
-__attribute((HANDLER_ATTRS)) void OTG_HS_Handler();     /*!< USB OTG HS global interrupt                                       */
-__attribute((HANDLER_ATTRS)) void DCMI_Handler();     /*!< DCMI global interrupt                                             */
-__attribute((HANDLER_ATTRS)) void CRYP_Handler();     /*!< CRYP crypto global interrupt                                      */
-__attribute((HANDLER_ATTRS)) void HASH_RNG_Handler();     /*!< Hash and Rng global interrupt                                     */
+ISR void SDIO_Handler();     /*!< SDIO global Interrupt                                             */
+ISR void TIM5_Handler();     /*!< TIM5 global Interrupt                                             */
+ISR void SPI3_Handler();     /*!< SPI3 global Interrupt                                             */
+ISR void UART4_Handler();     /*!< UART4 global Interrupt                                            */
+ISR void UART5_Handler();     /*!< UART5 global Interrupt                                            */
+ISR void TIM6_DAC_Handler();     /*!< TIM6 global and DAC1&2 underrun error  interrupts                 */
+ISR void TIM7_Handler();     /*!< TIM7 global interrupt                                             */
+ISR void DMA2_Stream0_Handler();     /*!< DMA2 Stream 0 global Interrupt                                    */
+ISR void DMA2_Stream1_Handler();     /*!< DMA2 Stream 1 global Interrupt                                    */
+ISR void DMA2_Stream2_Handler();     /*!< DMA2 Stream 2 global Interrupt                                    */
+ISR void DMA2_Stream3_Handler();     /*!< DMA2 Stream 3 global Interrupt                                    */
+ISR void DMA2_Stream4_Handler();     /*!< DMA2 Stream 4 global Interrupt                                    */
+ISR void ETH_Handler();     /*!< Ethernet global Interrupt                                         */
+ISR void ETH_WKUP_Handler();     /*!< Ethernet Wakeup through EXTI line Interrupt                       */
+ISR void CAN2_TX_Handler();     /*!< CAN2 TX Interrupt                                                 */
+ISR void CAN2_RX0_Handler();     /*!< CAN2 RX0 Interrupt                                                */
+ISR void CAN2_RX1_Handler();     /*!< CAN2 RX1 Interrupt                                                */
+ISR void CAN2_SCE_Handler();     /*!< CAN2 SCE Interrupt                                                */
+ISR void OTG_FS_Handler();     /*!< USB OTG FS global Interrupt                                       */
+ISR void DMA2_Stream5_Handler();     /*!< DMA2 Stream 5 global interrupt                                    */
+ISR void DMA2_Stream6_Handler();     /*!< DMA2 Stream 6 global interrupt                                    */
+ISR void DMA2_Stream7_Handler();     /*!< DMA2 Stream 7 global interrupt                                    */
+ISR void USART6_Handler();     /*!< USART6 global interrupt                                           */
+ISR void I2C3_EV_Handler();     /*!< I2C3 event interrupt                                              */
+ISR void I2C3_ER_Handler();     /*!< I2C3 error interrupt                                              */
+ISR void OTG_HS_EP1_OUT_Handler();     /*!< USB OTG HS End Point 1 Out global interrupt                       */
+ISR void OTG_HS_EP1_IN_Handler();     /*!< USB OTG HS End Point 1 In global interrupt                        */
+ISR void OTG_HS_WKUP_Handler();     /*!< USB OTG HS Wakeup through EXTI interrupt                          */
+ISR void OTG_HS_Handler();     /*!< USB OTG HS global interrupt                                       */
+ISR void DCMI_Handler();     /*!< DCMI global interrupt                                             */
+ISR void CRYP_Handler();     /*!< CRYP crypto global interrupt                                      */
+ISR void HASH_RNG_Handler();     /*!< Hash and Rng global interrupt                                     */
 
 #if defined(STM32F40XX)
-__attribute((HANDLER_ATTRS)) void FPU_Handler();     /*!< FPU global interrupt                                              */
+ISR void FPU_Handler();     /*!< FPU global interrupt                                              */
 #endif /* STM32F40XX */
 
 #if defined (STM32F427X) 
-__attribute((HANDLER_ATTRS)) void FPU_Handler();     /*!< FPU global interrupt                                              */
-__attribute((HANDLER_ATTRS)) void UART7_Handler();     /*!< UART7 global interrupt                                            */
-__attribute((HANDLER_ATTRS)) void UART8_Handler();     /*!< UART8 global interrupt                                            */
-__attribute((HANDLER_ATTRS)) void SPI4_Handler();     /*!< SPI4 global Interrupt                                             */
-__attribute((HANDLER_ATTRS)) void SPI5_Handler();     /*!< SPI5 global Interrupt                                             */
-__attribute((HANDLER_ATTRS)) void SPI6_Handler();     /*!< SPI6 global Interrupt                                             */
+ISR void FPU_Handler();     /*!< FPU global interrupt                                              */
+ISR void UART7_Handler();     /*!< UART7 global interrupt                                            */
+ISR void UART8_Handler();     /*!< UART8 global interrupt                                            */
+ISR void SPI4_Handler();     /*!< SPI4 global Interrupt                                             */
+ISR void SPI5_Handler();     /*!< SPI5 global Interrupt                                             */
+ISR void SPI6_Handler();     /*!< SPI6 global Interrupt                                             */
 #endif /* STM32F427X */
 
 #if defined (STM32F429X)
-__attribute((HANDLER_ATTRS)) void FPU_Handler();     /*!< FPU global interrupt                                              */
-__attribute((HANDLER_ATTRS)) void UART7_Handler();     /*!< UART7 global interrupt                                            */
-__attribute((HANDLER_ATTRS)) void UART8_Handler();     /*!< UART8 global interrupt                                            */
-__attribute((HANDLER_ATTRS)) void SPI4_Handler();     /*!< SPI4 global Interrupt                                             */
-__attribute((HANDLER_ATTRS)) void SPI5_Handler();     /*!< SPI5 global Interrupt                                             */
-__attribute((HANDLER_ATTRS)) void SPI6_Handler();     /*!< SPI6 global Interrupt                                             */
-__attribute((HANDLER_ATTRS)) void SAI1_Handler();     /*!< SAI1 global Interrupt                                             */
-__attribute((HANDLER_ATTRS)) void LTDC_Handler();     /*!< LTDC global Interrupt                                              */
-__attribute((HANDLER_ATTRS)) void LTDC_ER_Handler();     /*!< LTDC Error global Interrupt                                        */
-__attribute((HANDLER_ATTRS)) void DMA2D_Handler();     /*!< DMA2D global Interrupt                                            */
-#endif /* STM32F429X */
+ISR void FPU_Handler();     /*!< FPU global interrupt                                              */
+ISR void UART7_Handler();     /*!< UART7 global interrupt                                            */
+ISR void UART8_Handler();     /*!< UART8 global interrupt                                            */
+ISR void SPI4_Handler();     /*!< SPI4 global Interrupt                                             */
+ISR void SPI5_Handler();     /*!< SPI5 global Interrupt                                             */
+ISR void SPI6_Handler();     /*!< SPI6 global Interrupt                                             */
+ISR void SAI1_Handler();     /*!< SAI1 global Interrupt                                             */
+ISR void LTDC_Handler();     /*!< LTDC global Interrupt                                              */
+ISR void LTDC_ER_Handler();     /*!< LTDC Error global Interrupt                                        */
+ISR void DMA2D_Handler();     /*!< DMA2D global Interrupt                                            */
+#endif /* STM32F429X */  
+
+typedef void (*IntHwnd_t)(); //Handler function pointer typedef
+extern const uint32_t __stack; //Top of stack from flash.ld
+
 
 //Vector table
 __attribute((section(".vects"))) const inthwnd_t VectorTable[] = {
@@ -275,24 +279,24 @@ __attribute((section(".vects"))) const inthwnd_t VectorTable[] = {
 #endif /* STM32F429X */
 };
 
-//Called on reset, entry point
+
+//Called on Reset
 void Reset_Handler() {
-	//Section address boundary info from flash.ld
-	extern uint32_t __sbss, __ebss, __sidata, __sdata, __edata;
+	extern const uint32_t __sidata, __sdata, __edata, __sbss, __ebss;
+	uint8_t *src, *dst;
+	//Copy initial data to RAM .data
+	//Start address of initial data section preloaded in ROM
+	src = (uint8_t*)&__sidata;
+	dst = (uint8_t*)&__sdata; //Start address of RAM data section
+	for(uint32_t i = 0; i < (uint8_t*)&__edata - dst; i++) {
+		dst[i] = src[i];
+	}
+	//Fill bss with 0
+	dst = (uint8_t*)&__sbss; //Start address of bss section
+	for(uint32_t i = 0; i < (uint8_t*)&__ebss - dst; i++) {
+		dst[i] = 0;
+	}
+	//Finally, call main()
 	extern int main();
-	//Copy initial data section in ROM to RAM
-	uint8_t *p, *p2, *e;
-	p = (uint8_t*)&__sidata; //Start address of initial data
-	p2 = (uint8_t*)&__sdata; //Start address of RAM data section
-	e = (uint8_t*)&__edata; //End address of RAM data section
-	for(uint32_t i = 0; i < (e - p2); i++) {
-		p2[i] = p[i];
-	}
-	//Fill out BSS section with 0
-	p = (uint8_t*)&__sbss; //Start address of bss
-	e = (uint8_t*)&__ebss; //End address
-	for(uint32_t i = 0; i < (e - p); i++) {
-		p[i] = 0;
-	}
 	main();
 }
