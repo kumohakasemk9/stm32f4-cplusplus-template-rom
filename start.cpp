@@ -282,15 +282,15 @@ void Reset_Handler() {
 	extern int main();
 	//Copy initial data section in ROM to RAM
 	uint8_t *p, *p2, *e;
-	p = (uint8_t*)__sidata; //Start address of initial data
-	p2 = (uint8_t*)__sdata; //Start address of RAM data section
-	e = (uint8_t*)__edata; //End address of RAM data section
+	p = (uint8_t*)&__sidata; //Start address of initial data
+	p2 = (uint8_t*)&__sdata; //Start address of RAM data section
+	e = (uint8_t*)&__edata; //End address of RAM data section
 	for(uint32_t i = 0; i < (e - p2); i++) {
 		p2[i] = p[i];
 	}
 	//Fill out BSS section with 0
-	p = (uint8_t*)__sbss; //Start address of bss
-	e = (uint8_t*)__ebss; //End address
+	p = (uint8_t*)&__sbss; //Start address of bss
+	e = (uint8_t*)&__ebss; //End address
 	for(uint32_t i = 0; i < (e - p); i++) {
 		p[i] = 0;
 	}
