@@ -20,7 +20,6 @@ SECTIONS {
 		*(.vects);
 		*(.text*);
 		*(.ARM.exidx.text.*);
-		*(.init_array);
 		*(.rodata*);
 		__sidata = .;
 	} >FLASH
