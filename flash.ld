@@ -15,26 +15,26 @@ MEMORY {
 }
 
 SECTIONS {
-	__stack = ORIGIN(RAM) + LENGTH(RAM);
+	__stack = ORIGIN(RAM) + LENGTH(RAM); /* Stack top address */
 	.text : {
-		*(.vects);
+		*(.vects); /* Vector table */
 		*(.text*);
 		*(.ARM.exidx.text.*);
 		*(.rodata*);
-		__sidata = .;
+		__sidata = .; /* Start of ROM initial data section */
 	} >FLASH
 	.data : {
-		__sdata = .;
+		__sdata = .; /* Start of RAM data section */
 		*(.data);
 		*(.data.*);
 		*(.init_array);
-		__edata = .;
-	} >RAM AT> FLASH
+		__edata = .; /* End of RAM data section */
+	} >RAM AT> FLASH /* written into ROM, then copied into RAM */
 	.bss : {
-		__sbss = .;
+		__sbss = .; /* Start of Bss section */
 		*(.COMMON)
 		*(.bss.*);
 		*(.bss);
-		__ebss = .;
+		__ebss = .; /* End of bss section */
 	} >RAM
 }

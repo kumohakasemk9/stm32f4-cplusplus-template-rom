@@ -9,14 +9,14 @@
 
 #define ISR __attribute((interrupt, weak)) //Interrupt handler attributes
 
-#include <stdint.h>
+#include <cstdint>
 
 //Interrupt handler prototypes
 void Reset_Handler();
 
 /******  Cortex-M4 Processor Exceptions Numbers ****************************************************************/
 ISR void NonMaskableInt_Handler();    /*!< 2 Non Maskable Interrupt                                          */
-ISR void Hardfault_Handler();
+ISR void HardFault_Handler();
 ISR void MemoryManagement_Handler();    /*!< 4 Cortex-M4 Memory Management Interrupt                           */
 ISR void BusFault_Handler();    /*!< 5 Cortex-M4 Bus Fault Interrupt                                   */
 ISR void UsageFault_Handler();    /*!< 6 Cortex-M4 Usage Fault Interrupt                                 */
@@ -144,21 +144,20 @@ ISR void DMA2D_Handler();     /*!< DMA2D global Interrupt                       
 typedef void (*IntHwnd_t)(); //Handler function pointer typedef
 extern const uint32_t __stack; //Top of stack from flash.ld
 
-
-//Vector table
-__attribute((section(".vects"))) const inthwnd_t VectorTable[] = {
+//Vector table (gees to top of text section (see flash.ld))
+__attribute((section(".vects"))) const IntHwnd_t VectorTable[] = {
 	/******  Cortex-M4 Processor Exceptions Numbers ****************************************************************/
-	(inthwnd_t)&__stack, //stack top addr on Vector addr = 0
-	Reset_Handler, //Entry point
+	(IntHwnd_t)&__stack, //stack top addr on Vector addr = 0
+	Reset_Handler, // 1: Reset Interrupt (Entry point)
 	NonMaskableInt_Handler,    /*!< 2 Non Maskable Interrupt                                          */
-	HardFault_Handler,
+	HardFault_Handler,    /* 3: Hardfault Interrupt */
 	MemoryManagement_Handler,    /*!< 4 Cortex-M4 Memory Management Interrupt                           */
 	BusFault_Handler,    /*!< 5 Cortex-M4 Bus Fault Interrupt                                   */
 	UsageFault_Handler,    /*!< 6 Cortex-M4 Usage Fault Interrupt                                 */
-	0,0,0,0,
+	0,0,0,0, /* Padding */
 	SVCall_Handler,     /*!< 11 Cortex-M4 SV Call Interrupt                                    */
 	DebugMonitor_Handler,     /*!< 12 Cortex-M4 Debug Monitor Interrupt                              */
-	0,
+	0, /* Padding */
 	PendSV_Handler,     /*!< 14 Cortex-M4 Pend SV Interrupt                                    */
 	SysTick_Handler,     /*!< 15 Cortex-M4 System Tick Interrupt                                */
 /******  STM32 specific Interrupt Numbers **********************************************************************/
@@ -288,11 +287,13 @@ void Reset_Handler() {
 	//Start address of initial data section preloaded in ROM
 	src = (uint8_t*)&__sidata;
 	dst = (uint8_t*)&__sdata; //Start address of RAM data section
+	//__edata: End address of RAM data section
 	for(uint32_t i = 0; i < (uint8_t*)&__edata - dst; i++) {
 		dst[i] = src[i];
 	}
 	//Fill bss with 0
 	dst = (uint8_t*)&__sbss; //Start address of bss section
+	//__ebss: End address of bss section
 	for(uint32_t i = 0; i < (uint8_t*)&__ebss - dst; i++) {
 		dst[i] = 0;
 	}

@@ -7,7 +7,7 @@
 
 CXX=arm-none-eabi-g++
 CPUFLAGS=-mcpu=cortex-m4 -mfpu=fpv4-sp-d16
-CPPFLAGS=-g3 -I . -I ../CMSIS_5-5.9.0/CMSIS/Core/Include -D STM32F40XX $(CPUFLAGS) -fno-exceptions
+CPPFLAGS=-g3 -I . -I ~/harddisk_home/programs/CMSIS_5-5.7.0/CMSIS/Core/Include/ -D STM32F40XX $(CPUFLAGS) -fno-exceptions
 OBJS=main.o start.o
 OUTPUT=output.bin
 
